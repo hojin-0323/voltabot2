@@ -17,6 +17,17 @@ def openfile(cmd, filename, newfile=False):
             with open(name, "w", encoding="utf8") as file:
                 file.write('')
                 return ''
-            
+
+
+def editfile(cmd, filename, memo):
+    name = cmd+os.path.sep+filename+".txt"
+    with open(name, "w", encoding="utf8") as file:
+        file.write(memo)
+
+def delfile(cmd, filename):
+    name = cmd+os.path.sep+filename+".txt"
+    if os.path.isfile(name):
+        os.remove(name)
+
 def memover(tp, name):
     return "볼타봇 메모 서비스 (베타)"

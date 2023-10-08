@@ -3,6 +3,8 @@ import beforerun as set
 import file
 from discord.ext import commands
 
+prefix = ":>"
+
 set.varset(doUpdate=True)
 
 def getuserid(user):
@@ -15,7 +17,7 @@ def getusercolor(ctx, userid):
             color = str(i.color)
     return int("0x"+color[1:], 16)
 
-bot = commands.Bot(command_prefix=':>', intents=discord.Intents.all())
+bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 
 @bot.event
 async def on_ready():
@@ -38,11 +40,27 @@ async def echo(ctx, abc):
     await ctx.send(abc)
 
 @bot.command()
-async def openmemo(ctx, filename):
+async def openmemo(ctx, *, filename):
     if file.ismemo(filename):
         embed = discord.Embed(title = filename, description = file.openfile("memo", filename), color = 0xbdb092)
         embed.set_footer(text = file.memover('memo', filename))
         await ctx.send(embed = embed)
+    else:
+        await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"editmemo "+filename+" [메모 내용]```\n 을 입력하세요.")
+
+@bot.command()
+async def editmemo(ctx, filename, *, memo):
+    isexist = file.ismemo(filename)
+    file.editfile("memo", filename, memo)
+    if isexist:
+        await ctx.send("수정됨")
+    else:
+        await ctx.send("생성됨")
+
+@bot.command()
+async def delmemo(ctx, *, filename):
+    file.delfile("memo", filename)
+    await ctx.send("삭제됨")
 
 @bot.command()
 async def profile(ctx, user):

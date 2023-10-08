@@ -1,4 +1,5 @@
 import timeinfo
+import os
 
 build = 0
 day = "000000.000000"
@@ -26,7 +27,7 @@ def varset(doUpdate): # 변수 설정
     global day
     global versionm
 
-    versionlogfile = open("versioninfo.txt", "r", encoding="utf8")
+    versionlogfile = open("res"+os.path.sep+"versioninfo.txt", "r", encoding="utf8")
     versionm = versionnum(versionlogfile)
     versionlogfile.close()
     bld = 0
