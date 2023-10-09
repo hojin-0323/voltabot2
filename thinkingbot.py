@@ -28,6 +28,8 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send(f'pong! {round(round(bot.latency, 4)*1000)}ms')
 
+ping.help = "테스트"
+
 @bot.command()
 async def version(ctx):
     info = file.openfile("res", "versioninfo").replace("[빌드번호]", str(set.build)).replace("[빌드날짜]", str(set.day))
@@ -35,12 +37,23 @@ async def version(ctx):
     embed.set_footer(text = "볼타봇 버전 v"+set.versionm+"."+str(set.build))
     await ctx.send(embed = embed)
 
-@bot.command()
-async def echo(ctx, abc):
-    await ctx.send(abc)
+version.help = "버전 정보를 출력합니다. "
 
 @bot.command()
-async def openmemo(ctx, *, filename):
+async def echo(ctx, *, abc):
+    await ctx.send(abc)
+
+echo.help = "입력한 내용을 출력합니다"
+
+@bot.group()
+async def memo(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("명령어가 올바르지 않습니다. ")
+
+memo.help = "메모 입출력 관련"
+
+@memo.command()
+async def open(ctx, *, filename):
     if file.ismemo(filename):
         embed = discord.Embed(title = filename, description = file.openfile("memo", filename), color = 0xbdb092)
         embed.set_footer(text = file.memover('memo', filename))
@@ -48,8 +61,10 @@ async def openmemo(ctx, *, filename):
     else:
         await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"editmemo "+filename+" [메모 내용]```\n 을 입력하세요.")
 
-@bot.command()
-async def editmemo(ctx, filename, *, memo):
+open.help = "메모를 출력합니다."
+
+@memo.command()
+async def edit(ctx, filename, *, memo):
     isexist = file.ismemo(filename)
     file.editfile("memo", filename, memo)
     if isexist:
@@ -57,10 +72,14 @@ async def editmemo(ctx, filename, *, memo):
     else:
         await ctx.send("생성됨")
 
-@bot.command()
-async def delmemo(ctx, *, filename):
+edit.help = "메모를 작성/수정합니다. "
+
+@memo.command()
+async def delete(ctx, *, filename):
     file.delfile("memo", filename)
     await ctx.send("삭제됨")
+
+delete.help = "메모를 삭제합니다. "
 
 @bot.command()
 async def profile(ctx, user):
@@ -72,6 +91,8 @@ async def profile(ctx, user):
     except Exception as err:
         await ctx.send(err)
 
+profile.help = "맨션한 사람의 유저 정보를 출력합니다. "
+
 @bot.command()
 async def myprofile(ctx):
     name = ctx.message.author.name
@@ -80,11 +101,23 @@ async def myprofile(ctx):
     embed.set_footer(text = file.memover('profile', str(userid)))
     await ctx.send(embed = embed)
 
+myprofile.help = "자신의 유저 정보를 출력합니다. "
+
+@bot.command()
+async def introduce(ctx, *, memo):
+    userid = ctx.message.author.id
+    file.editfile("profile", str(userid), memo)
+    await ctx.send("수정 완료")
+
+introduce.help = "자기소개를 작성/수정합니다. "
+
 @bot.command()
 async def isadmin(ctx):
     if ctx.guild and ctx.message.author.guild_permissions.administrator:
         await ctx.send('?')
     else:
         await ctx.send("권한이 어ㅄ습니다. ")
+
+isadmin.help = "관리자인지 아닌지 확인합니다. "
 
 bot.run('MTE1MzYyMDgzODI0ODA5OTk1MA.GwSrCb.uN_yBaHK4Gi8cER71OZ4PKrerQ3oEbxUd3asaU')
