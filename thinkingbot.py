@@ -56,10 +56,10 @@ memo.help = "메모 입출력 관련"
 async def open(ctx, *, filename):
     if file.ismemo(filename):
         embed = discord.Embed(title = filename, description = file.openfile("memo", filename), color = 0xbdb092)
-        embed.set_footer(text = file.memover('memo', filename))
+        embed.set_footer(text = file.memover('memo', filename, 0))
         await ctx.send(embed = embed)
     else:
-        await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"editmemo "+filename+" [메모 내용]```\n 을 입력하세요.")
+        await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"memo edit "+filename+" [메모 내용]```\n 을 입력하세요.")
 
 open.help = "메모를 출력합니다."
 
@@ -67,6 +67,7 @@ open.help = "메모를 출력합니다."
 async def edit(ctx, filename, *, memo):
     isexist = file.ismemo(filename)
     file.editfile("memo", filename, memo)
+    file.rev("rev", filename, memo)
     if isexist:
         await ctx.send("수정됨")
     else:
@@ -86,7 +87,7 @@ async def profile(ctx, user):
     try:
         name = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
         embed = discord.Embed(title = name.nick, description = file.openfile("profile", str(getuserid(user)), True), color = getusercolor(ctx, getuserid(user)))
-        embed.set_footer(text = file.memover('profile', str(getuserid(user))))
+        embed.set_footer(text = file.memover('profile', str(getuserid(user)), 0))
         await ctx.send(embed = embed)
     except Exception as err:
         await ctx.send(err)
@@ -98,7 +99,7 @@ async def myprofile(ctx):
     name = ctx.message.author.name
     userid = ctx.message.author.id
     embed = discord.Embed(title = name, description = file.openfile("profile", str(userid), True), color = getusercolor(ctx, userid))
-    embed.set_footer(text = file.memover('profile', str(userid)))
+    embed.set_footer(text = file.memover('profile', str(userid), 0))
     await ctx.send(embed = embed)
 
 myprofile.help = "자신의 유저 정보를 출력합니다. "
@@ -107,9 +108,50 @@ myprofile.help = "자신의 유저 정보를 출력합니다. "
 async def introduce(ctx, *, memo):
     userid = ctx.message.author.id
     file.editfile("profile", str(userid), memo)
+    file.rev("profilerev", str(userid), memo)
     await ctx.send("수정 완료")
 
 introduce.help = "자기소개를 작성/수정합니다. "
+
+@bot.group()
+async def rev(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("명령어가 올바르지 않습니다. ")
+
+rev.help = "메모 리버전 관련"
+
+@rev.command()
+async def memo(ctx, filename, ver):
+    if file.isrev("rev", filename, ver):
+        embed = discord.Embed(title = filename, description = file.openrev("rev", filename, ver), color = 0xbdb092)
+        embed.set_footer(text = file.memover('memo', filename, 0))
+        await ctx.send(embed = embed)
+    else:
+        await ctx.send("해당 버전이 없습니다. ")
+
+memo.help = "메모 리버전을 엽니다. "
+
+@rev.command(name = "profile")
+async def pfrev(ctx, user, ver):
+    try:
+        name = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
+        embed = discord.Embed(title = name.nick, description = file.openrev("profilerev", str(getuserid(user)), ver), color = getusercolor(ctx, getuserid(user)))
+        embed.set_footer(text = file.memover('profile', str(getuserid(user)), 0))
+        await ctx.send(embed = embed)
+    except Exception as err:
+        await ctx.send(err)
+
+pfrev.help = "맨션한 유저의 유저 정보 리버전을 불러옵니다. "
+
+@rev.command(name="myprofile")
+async def mypfrev(ctx, ver):
+    name = ctx.message.author.name
+    userid = ctx.message.author.id
+    embed = discord.Embed(title = name, description = file.openrev("profilerev", str(userid), ver), color = getusercolor(ctx, userid))
+    embed.set_footer(text = file.memover('profile', str(userid), 0))
+    await ctx.send(embed = embed)
+
+mypfrev.help = "자신의 유저 정보 리버전을 불러옵니다. "
 
 @bot.command()
 async def isadmin(ctx):
