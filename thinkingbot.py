@@ -5,9 +5,9 @@ from discord.ext import commands
 
 prefix = ":>"
 admin_id = "861132651151097866"
-ussr = True
+ussr = 0
 
-set.varset(doUpdate=False)
+set.varset(doUpdate=True)
 
 def getuserid(user):
     return int(user[2:len(user)-1])
@@ -27,12 +27,22 @@ async def on_ready():
     print("version v"+set.versionm+"."+str(set.build)+" ("+set.day+")")
 
 @bot.event
-async def on_message_delete(message):
+async def on_message(message):
+    if message.content.startswith(prefix + 'help admin'):
+        if message.channel.guild and message.author.guild_permissions.administrator:
+            await message.channel.send("이 명령어는 도움말을 제공하지 않습니다. ")
+        else:
+            await message.channel.send("권한이 어ㅄ습니다. ")
+    else:
+        await bot.process_commands(message)
+
+@bot.event
+async def on_raw_message_delete(message):
     if ussr:
         await message.channel.send(message.author.nick + " 님이 " + message.content + " 메시지를 삭제했습니다. ")
 
 @bot.event
-async def on_message_edit(before, after):
+async def on_raw_message_edit(before, after):
     if ussr:
         await after.channel.send( after.author.nick + " 님이 " + before.content + " 메시지를 " + after.content + " 로 수정함.")
 
@@ -197,5 +207,16 @@ async def changehellomessage(ctx, *, text):
         await ctx.send("권한이 어ㅄ습니다. ")
 
 clearmessage.help = "메시지를 삭제합니다. "
+
+@admin.command(name = "record")
+async def savedeleteedit(ctx, *, text):
+    if ctx.guild and ctx.message.author.guild_permissions.administrator:
+        hellotext = open("hello.txt", "w", encoding = "utf8")
+        hellotext.write(text)
+        hellotext.close()
+    else:
+        await ctx.send("권한이 어ㅄ습니다. ")
+
+savedeleteedit.help = "수정/삭제 기록을 남깁니다. "
 
 bot.run('MTE1MzYyMDgzODI0ODA5OTk1MA.GwSrCb.uN_yBaHK4Gi8cER71OZ4PKrerQ3oEbxUd3asaU')
