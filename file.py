@@ -56,4 +56,4 @@ def openrev(folder, filename, ver):
     return a
 
 def memover(tp, name, rev):
-    return name
+    return tp + " - " + name + "(rev {})".format(rev)
