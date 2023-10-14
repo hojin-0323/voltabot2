@@ -1,4 +1,5 @@
 import discord
+import os
 import beforerun as set
 import file
 from discord.ext import commands
@@ -25,16 +26,18 @@ bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 async def on_ready():
     print(f'Login bot: {bot.user}')
     print("version v"+set.versionm+"."+str(set.build)+" ("+set.day+")")
+    await bot.change_presence(activity=discord.Game(name='전류 생산'))
 
 @bot.event
 async def on_message(message):
-    if message.content.startswith(prefix + 'help admin'):
-        if message.channel.guild and message.author.guild_permissions.administrator:
-            await message.channel.send("이 명령어는 도움말을 제공하지 않습니다. ")
-        else:
-            await message.channel.send("권한이 어ㅄ습니다. ")
-    else:
-        await bot.process_commands(message)
+   if message.content.startswith(prefix + 'help admin'):
+       if message.channel.guild and message.author.guild_permissions.administrator:
+           admindm = await bot.create_dm(message.author)
+           await commands.HelpCommand.command_callback(command="admin")
+       else:
+           await message.channel.send("권한이 어ㅄ습니다. ")
+   else:
+       await bot.process_commands(message)
 
 @bot.event
 async def on_raw_message_delete(message):
@@ -182,7 +185,6 @@ async def admin(ctx):
     else:
         if ctx.invoked_subcommand is None:
             await ctx.send("명령어가 올바르지 않습니다. ||~~당신 관리자 맞습니까?~~||")
-
 admin.help = "관리자 전용 명령어"
 
 @admin.command(name = "clear")
@@ -210,13 +212,29 @@ clearmessage.help = "메시지를 삭제합니다. "
 
 @admin.command(name = "record")
 async def savedeleteedit(ctx, *, text):
+    global ussr
+    sv = ussr
+    svc = 0
     if ctx.guild and ctx.message.author.guild_permissions.administrator:
-        hellotext = open("hello.txt", "w", encoding = "utf8")
-        hellotext.write(text)
-        hellotext.close()
+        if text in ["0", "1"]:
+            ussrfile = open("ussr.txt", "w")
+            ussrfile.write(text)
+            ussrfile.close()
+            ussr = int(text)
+            svc = 2 * sv + ussr
+            if svc == 0:
+                ctx.send("이미 잠복근무 중이었습니다. ")
+            elif svc == 1:
+                ctx.send("앞으로 삭제/수정된 메시지를 도청하겠습니다. ")
+            elif svc == 2:
+                ctx.send("앞으로 삭제/수정된 메시지를 도청하지 않겠습니다. ")
+            else:
+                ctx.send("이미 도청 중이었습니다. ")
+        else:
+            await ctx.send("너같은 짭관리자 말 안 들을건데")
     else:
         await ctx.send("권한이 어ㅄ습니다. ")
 
-savedeleteedit.help = "수정/삭제 기록을 남깁니다. "
+savedeleteedit.help = "수정/삭제 기록을 남길지 말지 설정합니다. "
 
-bot.run('MTE1MzYyMDgzODI0ODA5OTk1MA.GwSrCb.uN_yBaHK4Gi8cER71OZ4PKrerQ3oEbxUd3asaU')
+bot.run(set.token)

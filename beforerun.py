@@ -1,9 +1,12 @@
 import timeinfo
 import os
 
+sp = os.path.sep
+
 build = 0
 day = "000000.000000"
 versionm = "1.0"
+token = ""
 
 def versionnum(file): # 버전 정보 가져오는 함수
     versionline = ""
@@ -26,11 +29,14 @@ def varset(doUpdate): # 변수 설정
     global build
     global day
     global versionm
+    global token
 
-    versionlogfile = open("res"+os.path.sep+"versioninfo.txt", "r", encoding="utf8")
+    versionlogfile = open("res"+sp+"versioninfo.txt", "r", encoding="utf8")
     versionm = versionnum(versionlogfile)
     versionlogfile.close()
-    bld = 0
+    bld = 0 
+    tokenfile = open("botresource"+sp+"security"+sp+"token.txt", "r")
+    token = tokenfile.read()
 
     file = open("botbuild.txt", "r")
     bld = int(file.read())
