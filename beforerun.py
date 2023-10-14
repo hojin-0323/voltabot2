@@ -37,7 +37,6 @@ def varset(doUpdate): # 변수 설정
     bld = 0 
     tokenfile = open("botresource"+sp+"security"+sp+"token.txt", "r")
     token = tokenfile.read()
-
     file = open("botbuild.txt", "r")
     bld = int(file.read())
     file.close()
