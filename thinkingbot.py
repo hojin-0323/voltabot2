@@ -187,24 +187,18 @@ admin.help = "관리자 전용 명령어"
 
 @admin.command(name = "clear")
 async def clearmessage(ctx, num = -6974):
-    if ctx.guild and ctx.message.author.guild_permissions.administrator:
-        if num > 0:
-            await ctx.channel.purge(limit=num)
-        else:
-            await ctx.send("전 그런 거 못하니까 님이 {}개 지워보세요".format(num))
+    if num > 0:
+        await ctx.channel.purge(limit=num)
     else:
-        await ctx.send("권한이 어ㅄ습니다. ")
+        await ctx.send("전 그런 거 못하니까 님이 {}개 지워보세요".format(num))
 
 clearmessage.help = "메시지를 삭제합니다. "
 
 @admin.command(name = "hello")
 async def changehellomessage(ctx, *, text):
-    if ctx.guild and ctx.message.author.guild_permissions.administrator:
-        hellotext = open("hello.txt", "w", encoding = "utf8")
-        hellotext.write(text)
-        hellotext.close()
-    else:
-        await ctx.send("권한이 어ㅄ습니다. ")
+    hellotext = open("hello.txt", "w", encoding = "utf8")
+    hellotext.write(text)
+    hellotext.close()
 
 clearmessage.help = "메시지를 삭제합니다. "
 
@@ -213,33 +207,23 @@ async def savedeleteedit(ctx, *, text):
     global ussr
     sv = ussr
     svc = 0
-    if ctx.guild and ctx.message.author.guild_permissions.administrator:
-        if text in ["0", "1"]:
-            ussrfile = open("ussr.txt", "w")
-            ussrfile.write(text)
-            ussrfile.close()
-            ussr = int(text)
-            svc = 2 * sv + ussr
-            if svc == 0:
-                ctx.send("이미 잠복근무 중이었습니다. ")
-            elif svc == 1:
-                ctx.send("앞으로 삭제/수정된 메시지를 도청하겠습니다. ")
-            elif svc == 2:
-                ctx.send("앞으로 삭제/수정된 메시지를 도청하지 않겠습니다. ")
-            else:
-                ctx.send("이미 도청 중이었습니다. ")
+    if text in ["0", "1"]:
+        ussrfile = open("ussr.txt", "w")
+        ussrfile.write(text)
+        ussrfile.close()
+        ussr = int(text)
+        svc = 2 * sv + ussr
+        if svc == 0:
+            ctx.send("이미 잠복근무 중이었습니다. ")
+        elif svc == 1:
+            ctx.send("앞으로 삭제/수정된 메시지를 도청하겠습니다. ")
+        elif svc == 2:
+            ctx.send("앞으로 삭제/수정된 메시지를 도청하지 않겠습니다. ")
         else:
-            await ctx.send("너같은 짭관리자 말 안 들을건데")
+            ctx.send("이미 도청 중이었습니다. ")
     else:
-        await ctx.send("권한이 어ㅄ습니다. ")
+        await ctx.send("너같은 짭관리자 말 안 들을건데")
 
 savedeleteedit.help = "수정/삭제 기록을 남길지 말지 설정합니다. "
-
-@admin.command()
-async def test1(ctx, user):
-    userinfo = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
-    name = ctx.message.author
-    await ctx.send(type(userinfo))
-    await ctx.send(type(name))
 
 bot.run(set.token)
