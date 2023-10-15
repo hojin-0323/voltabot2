@@ -5,10 +5,11 @@ import file
 from discord.ext import commands
 
 prefix = ":>"
-admin_id = "861132651151097866"
+# admin_id = "861132651151097866"
 ussr = 0
+vsc = "Beta 2.1"
 
-set.varset(doUpdate=True)
+set.varset(doUpdate=False, vsc = vsc)
 
 def getuserid(user):
     return int(user[2:len(user)-1])
@@ -19,6 +20,17 @@ def getusercolor(ctx, userid):
         if userid in [j.id for j in i.members]:
             color = str(i.color)
     return int("0x"+color[1:], 16)
+
+async def sendprofileembed(ctx, userinfo, pfver = -1):
+    name = userinfo.nick
+    userid = userinfo.id
+    if pfver + 1:
+        ver = pfver
+    else:
+        ver = file.getver('profilerev', str(userid))
+    embed = discord.Embed(title = name, description = file.openrev("profilerev", str(userid), ver), color = getusercolor(ctx, userid))
+    embed.set_footer(text = file.memover('profile', name, ver))
+    await ctx.send(embed = embed)
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 
@@ -57,7 +69,7 @@ ping.help = "테스트"
 
 @bot.command()
 async def version(ctx):
-    info = file.openfile("res", "versioninfo").replace("[빌드번호]", str(set.build)).replace("[빌드날짜]", str(set.day))
+    info = file.openfile("res", "versioninfo").replace("[빌드번호]", str(set.build)).replace("[빌드날짜]", str(set.day)).replace("[버전 코드]", str(vsc))
     embed = discord.Embed(title = "버전 정보", description = info, color = 0x00a84d)
     embed.set_footer(text = "볼타봇 버전 v"+set.versionm+"."+str(set.build))
     await ctx.send(embed = embed)
@@ -88,7 +100,7 @@ memo.help = "메모 입출력 관련"
 async def open(ctx, *, filename):
     if file.ismemo(filename):
         embed = discord.Embed(title = filename, description = file.openfile("memo", filename), color = 0xbdb092)
-        embed.set_footer(text = file.memover('memo', filename, 0))
+        embed.set_footer(text = file.memover('memo', filename, file.getver('rev', filename)))
         await ctx.send(embed = embed)
     else:
         await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"memo edit "+filename+" [메모 내용]```\n 을 입력하세요.")
@@ -117,15 +129,10 @@ delete.help = "메모를 삭제합니다. "
 @bot.command()
 async def profile(ctx, user = " "):
     if user == " ":
-        name = ctx.message.author.nick
-        userid = ctx.message.author.id
-        embed = discord.Embed(title = name, description = file.openfile("profile", str(userid), True), color = getusercolor(ctx, userid))
+        userinfo = ctx.message.author
     else:
-        name = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
-        userid = getuserid(user)
-        embed = discord.Embed(title = name.nick, description = file.openfile("profile", str(getuserid(user)), True), color = getusercolor(ctx, getuserid(user)))
-    embed.set_footer(text = file.memover('profile', str(name), 0))
-    await ctx.send(embed = embed)
+        userinfo = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
+    await sendprofileembed(ctx, userinfo, -1)
 
 profile.help = "맨션한 사람(또는 자신)의 유저 정보를 출력합니다. "
 
@@ -157,24 +164,15 @@ async def memo(ctx, filename, ver):
 memo.help = "메모 리버전을 엽니다. "
 
 @rev.command(name = "profile")
-async def pfrev(ctx, user, ver):
-    try:
-        name = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
-        embed = discord.Embed(title = name.nick, description = file.openrev("profilerev", str(getuserid(user)), ver), color = getusercolor(ctx, getuserid(user)))
-        embed.set_footer(text = file.memover('profile', str(getuserid(user)), ver))
-        await ctx.send(embed = embed)
-    except Exception as err:
-        await ctx.send(err)
-
+async def pfrev(ctx, user, pfver = -1):
+    userinfo = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
+    await sendprofileembed(ctx, userinfo, pfver)
 pfrev.help = "맨션한 유저의 유저 정보 리버전을 불러옵니다. "
 
-@rev.command(name="myprofile")
-async def mypfrev(ctx, ver):
-    name = ctx.message.author.name
-    userid = ctx.message.author.id
-    embed = discord.Embed(title = name, description = file.openrev("profilerev", str(userid), ver), color = getusercolor(ctx, userid))
-    embed.set_footer(text = file.memover('profile', str(userid), 0))
-    await ctx.send(embed = embed)
+@rev.command(name = "myprofile")
+async def mypfrev(ctx, pfver = -1):
+    userinfo = ctx.message.author
+    await sendprofileembed(ctx, userinfo, pfver)
 
 mypfrev.help = "자신의 유저 정보 리버전을 불러옵니다. "
 
@@ -236,5 +234,12 @@ async def savedeleteedit(ctx, *, text):
         await ctx.send("권한이 어ㅄ습니다. ")
 
 savedeleteedit.help = "수정/삭제 기록을 남길지 말지 설정합니다. "
+
+@admin.command()
+async def test1(ctx, user):
+    userinfo = await commands.MemberConverter.convert(self=commands.MemberConverter, ctx=ctx, argument=user)
+    name = ctx.message.author
+    await ctx.send(type(userinfo))
+    await ctx.send(type(name))
 
 bot.run(set.token)
