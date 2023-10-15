@@ -4,12 +4,13 @@ import beforerun as set
 import file
 from discord.ext import commands
 
+sp = os.path.sep
 prefix = ":>"
 # admin_id = "861132651151097866"
 ussr = 0
-vsc = "Beta 2.1"
+vsc = "Beta 2.11 test release 1"
 
-set.varset(doUpdate=False, vsc = vsc)
+set.varset(doUpdate=True, vsc = vsc)
 
 def getuserid(user):
     return int(user[2:len(user)-1])
@@ -28,9 +29,12 @@ async def sendprofileembed(ctx, userinfo, pfver = -1):
         ver = pfver
     else:
         ver = file.getver('profilerev', str(userid))
-    embed = discord.Embed(title = name, description = file.openrev("profilerev", str(userid), ver), color = getusercolor(ctx, userid))
-    embed.set_footer(text = file.memover('profile', name, ver))
-    await ctx.send(embed = embed)
+    if file.isrev('profilerev', str(userid), ver):
+        embed = discord.Embed(title = name, description = file.openrev("profilerev", str(userid), ver), color = getusercolor(ctx, userid))
+        embed.set_footer(text = file.memover('profile', name, ver))
+        await ctx.send(embed = embed)
+    else:
+        await ctx.send("해당 버전이 없습니다. ")
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 
@@ -196,7 +200,7 @@ clearmessage.help = "메시지를 삭제합니다. "
 
 @admin.command(name = "hello")
 async def changehellomessage(ctx, *, text):
-    hellotext = open("hello.txt", "w", encoding = "utf8")
+    hellotext = open("res{}hello.txt".format(sp), "w", encoding = "utf8")
     hellotext.write(text)
     hellotext.close()
 
@@ -208,7 +212,7 @@ async def savedeleteedit(ctx, *, text):
     sv = ussr
     svc = 0
     if text in ["0", "1"]:
-        ussrfile = open("ussr.txt", "w")
+        ussrfile = open("res{}ussr.txt".format(sp), "w")
         ussrfile.write(text)
         ussrfile.close()
         ussr = int(text)
