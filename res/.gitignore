@@ -1,2 +1,2 @@
-security/*.txt
-!securityfiles.txt
+# security/*.txt
+# !securityfiles.txt
