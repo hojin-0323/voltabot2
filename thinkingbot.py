@@ -10,7 +10,7 @@ prefix = ":>"
 ussr = 0
 vsc = "Beta 2.11 test release 1"
 
-set.varset(doUpdate=True, vsc = vsc)
+set.varset(doUpdate=False, vsc = vsc)
 
 def getuserid(user):
     return int(user[2:len(user)-1])
