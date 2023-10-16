@@ -8,9 +8,9 @@ sp = os.path.sep
 prefix = ":>"
 # admin_id = "861132651151097866"
 ussr = 0
-vsc = "Beta 2.11 test release 1"
+# vsc = "Beta 2.11 test release 1"
 
-set.varset(doUpdate=False, vsc = vsc)
+set.varset(doUpdate=True, isBeta=True)
 
 def getuserid(user):
     return int(user[2:len(user)-1])
@@ -41,7 +41,7 @@ bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 @bot.event
 async def on_ready():
     print(f'Login bot: {bot.user}')
-    print("version v"+set.versionm+"."+str(set.build)+" ("+set.day+")")
+    print("version v"+set.versionm+"."+str(set.build)+" ("+set.day+") "+ set.versioncode)
     await bot.change_presence(activity=discord.Game(name='전류 생산'))
 
 @bot.event
@@ -60,11 +60,6 @@ async def on_raw_message_delete(message):
     if ussr:
         await message.channel.send(message.author.nick + " 님이 " + message.content + " 메시지를 삭제했습니다. ")
 
-@bot.event
-async def on_raw_message_edit(before, after):
-    if ussr:
-        await after.channel.send( after.author.nick + " 님이 " + before.content + " 메시지를 " + after.content + " 로 수정함.")
-
 @bot.command()
 async def ping(ctx):
     await ctx.send(f'pong! {round(round(bot.latency, 4)*1000)}ms')
@@ -73,7 +68,7 @@ ping.help = "테스트"
 
 @bot.command()
 async def version(ctx):
-    info = file.openfile("res", "versioninfo").replace("[빌드번호]", str(set.build)).replace("[빌드날짜]", str(set.day)).replace("[버전 코드]", str(vsc))
+    info = file.openfile("res", "versioninfo").replace("[빌드번호]", str(set.build)).replace("[빌드날짜]", str(set.day)).replace("[버전 코드]", str(set.versioncode))
     embed = discord.Embed(title = "버전 정보", description = info, color = 0x00a84d)
     embed.set_footer(text = "볼타봇 버전 v"+set.versionm+"."+str(set.build))
     await ctx.send(embed = embed)

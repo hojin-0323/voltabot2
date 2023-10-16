@@ -9,13 +9,6 @@ versionm = "1.0"
 token = ""
 versioncode = ""
 
-class VersioncodeUpdate(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
-
 def versionnum(file): # 버전 정보 가져오는 함수
     versionline = ""
     versionsplitcount = 0
@@ -33,7 +26,28 @@ def versionnum(file): # 버전 정보 가져오는 함수
 
     return versionstring[4:]
 
-def varset(doUpdate, vsc): # 변수 설정
+def getversioncode(doUpdate, isBeta):
+    maincodefile = open("res{0}version{0}versioncode{0}maincode.txt".format(sp), "r")
+    vercode = maincodefile.read()
+    releasenumfile = open("res{0}version{0}versioncode{0}releasenum.txt".format(sp), "r")
+    releasenum = int(releasenumfile.read())
+    releasenumfile.close()
+    releasenumfile = open("res{0}version{0}versioncode{0}releasenum.txt".format(sp), "w")
+    if doUpdate:
+        releasenumfile.write(str(releasenum+1))
+        releasenum += 1
+    else:
+        releasenumfile.write("0")
+        releasenum = 0
+    releasenumfile.close()
+    if releasenum:
+        return vercode + " test release " + str(releasenum)
+    elif isBeta:
+        return vercode + " final release"
+    else:
+        return vercode
+
+def varset(doUpdate, isBeta): # 변수 설정
     global build
     global day
     global versionm
@@ -43,16 +57,7 @@ def varset(doUpdate, vsc): # 변수 설정
     versionlogfile = open("res"+sp+"versioninfo.txt", "r", encoding="utf8")
     versionm = versionnum(versionlogfile)
     versionlogfile.close()
-    vscfile = open("res"+sp+"versioncode.txt", "r")
-    prevvsc = vscfile.read()
-    vscfile.close()
-    if doUpdate:
-        if prevvsc == vsc:
-            raise VersioncodeUpdate("버전 코드를 업데이트하세요.")
-        else:
-            vscfile = open("res"+sp+"versioncode.txt", "w")
-            vscfile.write(vsc)
-            vscfile.close()
+    versioncode = getversioncode(doUpdate, isBeta)
     bld = 0 
     tokenfile = open("res"+sp+"security"+sp+"token.txt", "r")
     token = tokenfile.read()

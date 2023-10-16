@@ -51,15 +51,11 @@ def isrev(folder, filename, ver):
 
 def openrev(folder, filename, ver):
     revfile = open(folder+os.path.sep+filename+os.path.sep+"rev{}.txt".format(ver), "r")
-    a = revfile.read()
-    revfile.close()
-    return a
+    return revfile.read()
 
 def getver(folder, filename):
     revfile = open(folder+os.path.sep+filename+os.path.sep+"rev.txt", "r")
-    a = revfile.read()
-    revfile.close()
-    return a
+    return revfile.read()
 
 def memover(tp, name, rev):
     return tp + " - " + name + "(rev {})".format(rev)
