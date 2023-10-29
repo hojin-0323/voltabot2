@@ -1,5 +1,6 @@
 import discord
 import os
+import subprocess
 import beforerun as set
 import file
 from discord.ext import commands
@@ -95,8 +96,8 @@ async def memo(ctx):
 
 memo.help = "메모 입출력 관련"
 
-@memo.command()
-async def open(ctx, *, filename):
+@memo.command(name = "open")
+async def openm(ctx, *, filename):
     if file.ismemo(filename):
         embed = discord.Embed(title = filename, description = file.openfile("memo", filename), color = 0xbdb092)
         embed.set_footer(text = file.memover('memo', filename, file.getver('rev', filename)))
@@ -104,7 +105,7 @@ async def open(ctx, *, filename):
     else:
         await ctx.send(filename+" 메모가 없습니다. "+filename+" 메모를 생성하려면 \n```"+prefix+"memo edit "+filename+" [메모 내용]```\n 을 입력하세요.")
 
-open.help = "메모를 출력합니다."
+openm.help = "메모를 출력합니다."
 
 @memo.command()
 async def edit(ctx, filename, *, memo):
@@ -174,6 +175,49 @@ async def mypfrev(ctx, pfver = -1):
     await sendprofileembed(ctx, userinfo, pfver)
 
 mypfrev.help = "자신의 유저 정보 리버전을 불러옵니다. "
+
+@bot.group(name = "python")
+async def pyrun(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("명령어가 올바르지 않습니다. ")
+pyrun.help = "파이썬 실행과 관련된 함수들"
+
+@pyrun.command(name = "input")
+async def editinput(ctx, *pyargs):
+    stdinstr = ""
+    for i in pyargs:
+        stdinstr = stdinstr + "{}\n".format(str(i))
+    stdfile = open("stdin.txt", "w")
+    stdfile.write(stdinstr)
+    stdfile.close()
+editinput.help = "파이썬 프로그램의 입력값을 설정합니다. "
+
+@pyrun.command(name = "code")
+async def editpycode(ctx, *, pythoncode):
+    head = "import sys\nsys.stdin = open(\"stdin.txt\", \"r\")\n"
+    pyfile = open("test.py", "w")
+    pyfile.write(head + pythoncode)
+    pyfile.close()
+editpycode.help = "파이썬 코드를 작성합니다. "
+
+@pyrun.command(name = "run")
+async def runpycode(ctx, *, pythoncode):
+    result = subprocess.getoutput("test.py")
+    await ctx.send(result)
+runpycode.help = "파이썬 코드를 실행합니다. "
+
+@pyrun.command(name = "runcode")
+async def editrunpycode(ctx, *, pythoncode):
+    head = "import sys\nsys.stdin = open(\"stdin.txt\", \"r\")\n"
+    pyfile = open("test.py", "w")
+    pyfile.write(head + pythoncode)
+    pyfile.close()
+
+    result = subprocess.getoutput("test.py")
+    await ctx.send(result)
+editrunpycode.help = "파이썬 코드를 작성하고 실행합니다. "
+
+# 이후 최신 함수들은 여기에 작성하세요.
 
 @bot.group()
 async def admin(ctx):

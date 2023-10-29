@@ -54,6 +54,10 @@ def varset(doUpdate, isBeta): # 변수 설정
     global token
     global versioncode
 
+    pyset = open("test.py", "w", encoding="utf8")
+    pyset.write("")
+    pyset.close()
+
     versionlogfile = open("res"+sp+"versioninfo.txt", "r", encoding="utf8")
     versionm = versionnum(versionlogfile)
     versionlogfile.close()
